@@ -15,7 +15,7 @@ export class UserService {
     ) {}
 
     async findAll(): Promise<User[]> {
-        // If there is no users, returns an empty list
+        // If there are no users, returns an empty list
         return await this.userRepository.find();
     }
 
@@ -39,5 +39,15 @@ export class UserService {
         }
 
         return await this.userRepository.save(user);
+    }
+
+    async delete(unique: FindOptionsWhere<User>) {
+        const result = await this.userRepository.delete(unique);
+
+        if (!result.affected) {
+            throw new NotFoundException("Requested user does not exist");
+        }
+
+        return { message: "User deleted successfully" };
     }
 }
