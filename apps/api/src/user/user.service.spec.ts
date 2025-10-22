@@ -66,4 +66,17 @@ describe("UserService", () => {
             expect(response.length).toBe(1);
         });
     });
+
+    describe("delete", () => {
+        it("Should delete an user and return a successfull message", async () => {
+            const response = await userService.delete({ email: user.email });
+            expect(response.message).toBe("User deleted successfully");
+        });
+
+        it("Should fail if the user does not exist", async () => {
+            await expect(
+                userService.delete({ email: "fjrn549n5b9tu4j" }),
+            ).rejects.toThrow(NotFoundException);
+        });
+    });
 });
