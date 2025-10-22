@@ -79,4 +79,25 @@ describe("UserService", () => {
             ).rejects.toThrow(NotFoundException);
         });
     });
+
+    describe("update", () => {
+        const newEmail = "Crazy ass email";
+
+        it("Should update an user and return the updated user", async () => {
+            //adding again the user (deleleted in the delete tests)
+            await userService.create(user);
+            const result = await userService.update(
+                { email: user.email },
+                { email: newEmail },
+            );
+
+            expect(result.email).toBe(newEmail);
+        });
+
+        it("Should fail if the user does not exist", async () => {
+            await expect(
+                userService.update({ email: "djf4nbgu" }, { email: newEmail }),
+            ).rejects.toThrow(NotFoundException);
+        });
+    });
 });
