@@ -1,7 +1,7 @@
 import { Test } from "@nestjs/testing";
 import { UserService } from "./user.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigModule } from "@nestjs/config";
 import validate from "../config/config";
 import { UserModule } from "./user.module";
 import { Role } from "../role/role.enum";
@@ -15,36 +15,11 @@ describe("UserService", () => {
         const modRef = await Test.createTestingModule({
             imports: [
                 ConfigModule.forRoot({ validate }),
-                TypeOrmModule.forRootAsync({
-                    imports: [ConfigModule],
-                    inject: [ConfigService],
-                    useFactory: (configService: ConfigService) => {
-                        const ENV = configService.get("NODE_ENV");
-                        if (ENV === "production") {
-                            return {
-                                type: "postgres",
-                                url: configService.get("DB_URL"),
-                                autoLoadEntities: true,
-                                synchronize: false,
-                            };
-                        } else if (ENV === "test") {
-                            return {
-                                type: "sqlite",
-                                database: ":memory:",
-                                synchronize: true,
-                                autoLoadEntities: true,
-                                dropSchema: true,
-                            };
-                        } else {
-                            // ENV_NODE=development
-                            return {
-                                type: "postgres",
-                                url: configService.get("DEV_DB_URL"),
-                                autoLoadEntities: true,
-                                synchronize: true,
-                            };
-                        }
-                    },
+                TypeOrmModule.forRoot({
+                    type: "sqlite",
+                    database: ":memory:",
+                    synchronize: true,
+                    autoLoadEntities: true,
                 }),
                 UserModule,
             ],
@@ -65,7 +40,7 @@ describe("UserService", () => {
             expect(result.roles).toStrictEqual([Role.user]);
         });
 
-        it("Should fail if  the user already exist in the db", async () => {
+        it("Should fail if the user already exist in the db", async () => {
             await expect(userService.create(user)).rejects.toThrow(
                 ConflictException,
             );

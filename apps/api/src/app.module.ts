@@ -12,30 +12,14 @@ import { UserModule } from "./user/user.module";
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
                 const ENV = configService.get("NODE_ENV");
-                if (ENV === "production") {
-                    return {
-                        type: "postgres",
-                        url: configService.get("DB_URL"),
-                        autoLoadEntities: true,
-                        synchronize: false,
-                    };
-                } else if (ENV === "test") {
-                    return {
-                        type: "sqlite",
-                        database: ":memory:",
-                        synchronize: true,
-                        autoLoadEntities: true,
-                        dropSchema: true,
-                    };
-                } else {
-                    // ENV_NODE=development
-                    return {
-                        type: "postgres",
-                        url: configService.get("DEV_DB_URL"),
-                        autoLoadEntities: true,
-                        synchronize: true,
-                    };
-                }
+                return {
+                    type: "postgres",
+                    url: configService.get(
+                        ENV === "prod" ? "DB_URL" : "DEV_DB_URL",
+                    ),
+                    autoLoadEntities: true,
+                    synchronize: ENV !== "prod",
+                };
             },
         }),
         UserModule,
