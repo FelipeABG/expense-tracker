@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./user.entity";
 import { DeepPartial, FindOptionsWhere, Repository } from "typeorm";
@@ -14,8 +18,14 @@ export class UserService {
         return await this.userRepository.find();
     }
 
-    async findBy(unique: FindOptionsWhere<User>): Promise<User | null> {
-        return await this.userRepository.findOneBy(unique);
+    async findBy(unique: FindOptionsWhere<User>): Promise<User> {
+        const user = await this.userRepository.findOneBy(unique);
+
+        if (!user) {
+            throw new NotFoundException("Requested user does not exist");
+        }
+
+        return user;
     }
 
     async create(user: DeepPartial<User>) {
@@ -24,7 +34,7 @@ export class UserService {
         });
 
         if (existingUser) {
-            throw new ConflictException("User with this email already exists");
+            throw new ConflictException("Email address is already registered");
         }
 
         return await this.userRepository.save(user);
