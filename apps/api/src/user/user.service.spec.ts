@@ -5,10 +5,13 @@ import { ConfigModule } from "@nestjs/config";
 import validate from "../config/config";
 import { UserModule } from "./user.module";
 import { Role } from "../role/role.enum";
-import { ConflictException } from "@nestjs/common";
+import { ConflictException, NotFoundException } from "@nestjs/common";
 
 describe("UserService", () => {
-    const user = { email: "giuseppe@gmail.com", hash: "fadjslfkjad;slfjk" };
+    const user = {
+        email: `test-user${Date.now()}@gmail.com`,
+        hash: "fadjslfkjad;slfjk",
+    };
     let userService: UserService;
 
     beforeAll(async () => {
@@ -28,10 +31,6 @@ describe("UserService", () => {
         userService = modRef.get(UserService);
     });
 
-    describe("findAll", () => {});
-
-    describe("findBy", () => {});
-
     describe("create", () => {
         it("Should create a new user in the db and return the created user", async () => {
             const result = await userService.create(user);
@@ -44,6 +43,27 @@ describe("UserService", () => {
             await expect(userService.create(user)).rejects.toThrow(
                 ConflictException,
             );
+        });
+    });
+
+    describe("findBy", () => {
+        it("Should return the user specified by an unique field", async () => {
+            const response = await userService.findBy({ email: user.email });
+            expect(response.email).toBe(user.email);
+            expect(response.id).toBeDefined();
+        });
+
+        it("Should fail if the user does not exist", async () => {
+            await expect(
+                userService.findBy({ email: "fjsld34btgoui3n" }),
+            ).rejects.toThrow(NotFoundException);
+        });
+    });
+
+    describe("findAll", () => {
+        it("Should return a list of users", async () => {
+            const response = await userService.findAll();
+            expect(response.length).toBe(1);
         });
     });
 });
