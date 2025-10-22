@@ -15,6 +15,7 @@ export class UserService {
     ) {}
 
     async findAll(): Promise<User[]> {
+        // If there is no users, returns an empty list
         return await this.userRepository.find();
     }
 
