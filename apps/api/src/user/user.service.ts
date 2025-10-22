@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./user.entity";
 import { DeepPartial, FindOptionsWhere, Repository } from "typeorm";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity.js";
 
 @Injectable()
 export class UserService {
@@ -19,8 +20,8 @@ export class UserService {
         return await this.userRepository.find();
     }
 
-    async findBy(unique: FindOptionsWhere<User>): Promise<User> {
-        const user = await this.userRepository.findOneBy(unique);
+    async findBy(where: FindOptionsWhere<User>): Promise<User> {
+        const user = await this.userRepository.findOneBy(where);
 
         if (!user) {
             throw new NotFoundException("Requested user does not exist");
@@ -41,13 +42,30 @@ export class UserService {
         return await this.userRepository.save(user);
     }
 
-    async delete(unique: FindOptionsWhere<User>) {
-        const result = await this.userRepository.delete(unique);
+    async delete(where: FindOptionsWhere<User>) {
+        const result = await this.userRepository.delete(where);
 
         if (!result.affected) {
             throw new NotFoundException("Requested user does not exist");
         }
 
         return { message: "User deleted successfully" };
+    }
+
+    async update(
+        where: FindOptionsWhere<User>,
+        changes: QueryDeepPartialEntity<User>,
+    ) {
+        const user = await this.findBy(where);
+
+        if (!user) {
+            throw new NotFoundException("Requested user does not exist");
+        }
+
+        //Merge the user changes
+        Object.assign(user, changes);
+
+        const updatedUser = await this.userRepository.save(user);
+        return updatedUser;
     }
 }
