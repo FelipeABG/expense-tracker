@@ -1,3 +1,4 @@
+// Swagger ui API description
 export const description = `
 A comprehensive learning project demonstrating production-grade REST API fundamentals. This API showcases enterprise-level features and best practices including:
 

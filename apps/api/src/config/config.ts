@@ -9,8 +9,9 @@ import {
 } from "class-validator";
 
 enum Environment {
-    Production = "production",
-    Development = "development",
+    Production = "prod",
+    Development = "dev",
+    // Jest automatically sets NODE_ENV to test, overriding .env configs
     Test = "test",
 }
 
