@@ -13,13 +13,23 @@ import { AuthModule } from "./auth/auth.module";
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
                 const ENV = configService.get("NODE_ENV");
+                let common = {
+                    autoLoadEntities: true,
+                    synchronize: ENV !== "prod",
+                };
+                if (ENV === "test") {
+                    return {
+                        type: "sqlite",
+                        database: ":memory:",
+                        ...common,
+                    };
+                }
                 return {
                     type: "postgres",
                     url: configService.get(
                         ENV === "prod" ? "DB_URL" : "DEV_DB_URL",
                     ),
-                    autoLoadEntities: true,
-                    synchronize: ENV !== "prod",
+                    ...common,
                 };
             },
         }),
