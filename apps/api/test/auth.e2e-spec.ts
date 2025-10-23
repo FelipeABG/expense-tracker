@@ -11,7 +11,7 @@ describe("AuthController (e2e)", () => {
         password: "Strongassoword123!",
     };
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         const modRef = await Test.createTestingModule({
             imports: [AppModule],
         }).compile();
@@ -20,15 +20,62 @@ describe("AuthController (e2e)", () => {
         await app.init();
     });
 
-    it("/auth/signup (POST)", async () => {
-        return request(app.getHttpServer())
-            .post("/auth/signup")
-            .send(user)
-            .expect(201)
-            .then((response) =>
-                expect(response.body.message).toBe(
-                    "User registered successfully",
-                ),
-            );
+    describe("/auth/signup (POST)", () => {
+        const path = "/auth/signup";
+
+        it("Should return 201 when successful", async () => {
+            return request(app.getHttpServer())
+                .post(path)
+                .send(user)
+                .expect(201)
+                .then((response) =>
+                    expect(response.body.message).toBe(
+                        "User registered successfully",
+                    ),
+                );
+        });
+
+        it("Should return 409 when user already exists in the db", async () => {
+            return request(app.getHttpServer())
+                .post(path)
+                .send(user)
+                .expect(409)
+                .then((response) =>
+                    expect(response.body.message).toBe(
+                        "Email address is already registered",
+                    ),
+                );
+        });
+    });
+
+    describe("/auth/login (POST)", () => {
+        const path = "/auth/login";
+        it("Should return 200 with the token when successful", async () => {
+            return request(app.getHttpServer())
+                .post(path)
+                .send(user)
+                .expect(200)
+                .then((response) => expect(response.body.token).toBeDefined());
+        });
+
+        it("Should return 401 when credentials are invalid", async () => {
+            return request(app.getHttpServer())
+                .post(path)
+                .send({ email: user.email, password: "SomeotherPasssword157!" })
+                .expect(401)
+                .then((response) =>
+                    expect(response.body.message).toBe("Invalid credentials"),
+                );
+        });
+
+        it("Should return 404 when user is not registered", async () => {
+            return request(app.getHttpServer())
+                .post(path)
+                .send({ email: "email@email.com", password: user.password })
+                .expect(404)
+                .then((response) =>
+                    expect(response.body.message).toBe("User does not exist"),
+                );
+        });
     });
 });
