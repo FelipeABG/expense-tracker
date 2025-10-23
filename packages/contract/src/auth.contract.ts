@@ -1,6 +1,7 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
 import { UserSchema } from "./schemas/user.schema";
+import { InternalServerResponse } from "./error";
 
 const c = initContract();
 
@@ -20,21 +21,17 @@ export const authContract = c.router(
                         token: z.string().jwt(),
                     })
                     .describe("User successfuly logged in."),
-                400: z
-                    .object({
-                        message: z.string().array(),
-                    })
-                    .describe("Email and/or password is invalid."),
                 401: z
                     .object({
                         message: z.string(),
                     })
-                    .describe("Password is incorrect."),
+                    .describe("Invalid credentials."),
                 404: z
                     .object({
                         message: z.string(),
                     })
                     .describe("User not found in the system."),
+                ...InternalServerResponse,
             },
         },
         signup: {
@@ -48,14 +45,14 @@ export const authContract = c.router(
                 201: z
                     .object({
                         message: z.string(),
-                        user: UserSchema.omit({ password: true }),
                     })
                     .describe("User successfuly created."),
-                400: z
+                409: z
                     .object({
-                        message: z.string().array(),
+                        message: z.string(),
                     })
-                    .describe("Email and/or password is invalid."),
+                    .describe("Email already registered"),
+                ...InternalServerResponse,
             },
         },
     },

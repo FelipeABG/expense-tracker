@@ -23,9 +23,6 @@ export const userContract = c.router(
                         }),
                     })
                     .describe("User successfully created."),
-                400: z
-                    .object({ message: z.string().array() })
-                    .describe("Invalid email and/or password."),
                 401: z
                     .object({ message: z.string() })
                     .describe(
