@@ -23,7 +23,7 @@ describe("UserService", () => {
     });
 
     describe("signup", () => {
-        it("Should registes a new user in the db and return a successfull message", async () => {
+        it("Should register a new user in the db and return a successfull message", async () => {
             const result = await authService.signup(user.email, user.password);
 
             expect(result.message).toBe("Signed up successfully");
