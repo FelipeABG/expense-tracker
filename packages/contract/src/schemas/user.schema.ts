@@ -13,5 +13,5 @@ export const UserSchema = z.object({
             /[^a-zA-Z0-9]/,
             "Password must contain at least one special character",
         ),
-    role: z.enum(["User", "Admin"]),
+    roles: z.enum(["User", "Admin"]),
 });
