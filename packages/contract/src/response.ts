@@ -13,5 +13,5 @@ export const BadRequestServerResponse = {
         .object({
             message: z.string(),
         })
-        .describe("Invalid request body/query/parameter."),
+        .describe("Request body, query, or parameters failed validation."),
 };
