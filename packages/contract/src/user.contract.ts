@@ -46,6 +46,7 @@ export const userContract = c.router(
                 200: z
                     .object({
                         message: z.string(),
+                        user: UserSchema.omit({ password: true }),
                     })
                     .describe("User successfully retrieved."),
                 404: z
@@ -72,6 +73,7 @@ export const userContract = c.router(
                 200: z
                     .object({
                         message: z.string(),
+                        user: UserSchema.omit({ password: true }),
                     })
                     .describe("User successfully retrieved."),
                 404: z
