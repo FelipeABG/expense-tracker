@@ -11,5 +11,3 @@ export const contract = c.router(
     },
     { strictStatusCodes: true },
 );
-
-export { INTERNAL_SERVER_ERROR } from "./error";

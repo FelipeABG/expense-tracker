@@ -1,7 +1,7 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
 import { UserSchema } from "./schemas/user.schema";
-import { InternalServerResponse } from "./error";
+import { InternalServerResponse, BadRequestServerResponse } from "./response";
 
 const c = initContract();
 
@@ -32,6 +32,7 @@ export const authContract = c.router(
                     })
                     .describe("User not found in the system."),
                 ...InternalServerResponse,
+                ...BadRequestServerResponse,
             },
         },
         signup: {
@@ -53,6 +54,7 @@ export const authContract = c.router(
                     })
                     .describe("Email already registered"),
                 ...InternalServerResponse,
+                ...BadRequestServerResponse,
             },
         },
     },
