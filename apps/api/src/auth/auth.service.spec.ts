@@ -1,15 +1,11 @@
 import { Test } from "@nestjs/testing";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { ConfigModule } from "@nestjs/config";
-import validate from "../config/config";
 import { AuthService } from "./auth.service";
-import { AuthModule } from "./auth.module";
-import { UserModule } from "../user/user.module";
 import {
     ConflictException,
     NotFoundException,
     UnauthorizedException,
 } from "@nestjs/common";
+import { AppModule } from "../app.module";
 
 describe("UserService", () => {
     const user = {
@@ -20,17 +16,7 @@ describe("UserService", () => {
 
     beforeAll(async () => {
         const modRef = await Test.createTestingModule({
-            imports: [
-                ConfigModule.forRoot({ validate }),
-                TypeOrmModule.forRoot({
-                    type: "sqlite",
-                    database: ":memory:",
-                    synchronize: true,
-                    autoLoadEntities: true,
-                }),
-                UserModule,
-                AuthModule,
-            ],
+            imports: [AppModule],
         }).compile();
 
         authService = modRef.get(AuthService);
