@@ -50,7 +50,7 @@ describe("UserService", () => {
 
     describe("findAll", () => {
         it("Should return a list of users", async () => {
-            const response = await userService.findAll();
+            const response = await userService.findAll(10, 0);
             expect(response.length).toBe(1);
         });
     });

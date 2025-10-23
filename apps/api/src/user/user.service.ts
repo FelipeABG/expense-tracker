@@ -15,9 +15,9 @@ export class UserService {
         private userRepository: Repository<User>,
     ) {}
 
-    async findAll(): Promise<User[]> {
+    async findAll(limit: number, offset: number): Promise<User[]> {
         // If there are no users, returns an empty list
-        return await this.userRepository.find();
+        return await this.userRepository.find({ take: limit, skip: offset });
     }
 
     async findBy(where: FindOptionsWhere<User>): Promise<User> {
