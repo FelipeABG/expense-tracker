@@ -5,8 +5,3 @@ export const InternalServerResponse = {
         message: z.string(),
     }),
 };
-
-export const INTERNAL_SERVER_ERROR = {
-    status: 500 as const,
-    body: { message: "Internal server error" },
-};
