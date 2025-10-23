@@ -23,7 +23,7 @@ export class AuthController {
 
                     return {
                         status: 201,
-                        body: { message: "Registered user successfully" },
+                        body: { message: "User registered successfully" },
                     };
                 } catch (err) {
                     if (err instanceof ConflictException) {
