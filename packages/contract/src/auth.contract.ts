@@ -1,7 +1,7 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
 import { UserSchema } from "./schemas/user.schema";
-import { InternalServerResponse, BadRequestServerResponse } from "./response";
+import { InternalErrorResponse, BadRequestResponse } from "./response";
 
 const c = initContract();
 
@@ -13,7 +13,7 @@ export const authContract = c.router(
             summary: "Log a user into the system.",
             description:
                 "Authenticate user with email and password, returning JWT token.",
-            body: UserSchema.omit({ id: true, role: true }),
+            body: UserSchema.omit({ id: true, roles: true }),
             responses: {
                 200: z
                     .object({
@@ -31,8 +31,8 @@ export const authContract = c.router(
                         message: z.string(),
                     })
                     .describe("User not found in the system."),
-                ...InternalServerResponse,
-                ...BadRequestServerResponse,
+                ...InternalErrorResponse,
+                ...BadRequestResponse,
             },
         },
         signup: {
@@ -41,7 +41,7 @@ export const authContract = c.router(
             summary: "Log a user into the system.",
             description:
                 "Authenticate user with email and password, returning JWT token.",
-            body: UserSchema.omit({ id: true, role: true }),
+            body: UserSchema.omit({ id: true, roles: true }),
             responses: {
                 201: z
                     .object({
@@ -53,8 +53,8 @@ export const authContract = c.router(
                         message: z.string(),
                     })
                     .describe("Email already registered"),
-                ...InternalServerResponse,
-                ...BadRequestServerResponse,
+                ...InternalErrorResponse,
+                ...BadRequestResponse,
             },
         },
     },

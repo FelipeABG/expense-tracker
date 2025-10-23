@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const InternalServerResponse = {
+export const InternalErrorResponse = {
     500: z
         .object({
             message: z.string(),
@@ -8,10 +8,18 @@ export const InternalServerResponse = {
         .describe("Internal server error."),
 };
 
-export const BadRequestServerResponse = {
+export const BadRequestResponse = {
     400: z
         .object({
             message: z.string(),
         })
         .describe("Request body, query, or parameters failed validation."),
+};
+
+export const ForbiddenResponse = {
+    403: z
+        .object({
+            message: z.string(),
+        })
+        .describe("Insufficient privileges"),
 };
