@@ -38,7 +38,7 @@ export const authContract = c.router(
         signup: {
             method: "POST",
             path: "/signup",
-            summary: "Log a user into the system.",
+            summary: "Sign a user into the system.",
             description:
                 "Authenticate user with email and password, returning JWT token.",
             body: UserSchema.omit({ id: true, roles: true }),
