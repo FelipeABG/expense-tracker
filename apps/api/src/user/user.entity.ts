@@ -18,5 +18,5 @@ export class User {
         type: "simple-array",
         default: Role.user,
     })
-    roles: [];
+    roles: Role[];
 }

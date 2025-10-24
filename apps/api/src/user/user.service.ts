@@ -17,14 +17,18 @@ export class UserService {
 
     async findAll(limit: number, offset: number): Promise<User[]> {
         // If there are no users, returns an empty list
-        return await this.userRepository.find({ take: limit, skip: offset });
+        return await this.userRepository.find({
+            take: limit,
+            skip: offset,
+            select: ["id", "email", "roles"],
+        });
     }
 
     async findBy(where: FindOptionsWhere<User>): Promise<User> {
         const user = await this.userRepository.findOneBy(where);
 
         if (!user) {
-            throw new NotFoundException("User does not exist");
+            throw new NotFoundException("Specified user does not exist");
         }
 
         return user;
