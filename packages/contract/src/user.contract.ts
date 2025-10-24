@@ -40,7 +40,7 @@ export const userContract = c.router(
             description:
                 "Retrive an user by it's id. If there is no such user, returns 404 http code.",
             pathParams: z.object({
-                id: z.number(),
+                id: z.coerce.number().positive(),
             }),
             responses: {
                 200: z
@@ -95,7 +95,7 @@ export const userContract = c.router(
                 "Returns a list with all the users in the system. If there are no users, returns an empty list. **OBS**: You can optionally pass `limit` and `offset` as query parameters to paginate the response.",
             query: z
                 .object({
-                    limit: z.coerce.number().default(100),
+                    limit: z.coerce.number().positive().default(100),
                     offset: z.coerce.number().default(0),
                 })
                 .optional()
@@ -119,7 +119,7 @@ export const userContract = c.router(
             description:
                 "Delete an user by it's id. If there is no such user, returns 404 http code.",
             pathParams: z.object({
-                id: z.number(),
+                id: z.coerce.number().positive(),
             }),
             responses: {
                 200: z
