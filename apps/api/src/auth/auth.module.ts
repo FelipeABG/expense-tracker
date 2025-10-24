@@ -6,7 +6,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { AuthGuard } from "./auth.guard";
 import { AuthController } from "./auth.controller";
-import { RoleGuard } from "src/role/role.guard";
+import { RoleGuard } from "../role/role.guard";
 
 @Module({
     providers: [
