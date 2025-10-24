@@ -11,7 +11,7 @@ export const InternalErrorResponse = {
 export const BadRequestResponse = {
     400: z
         .object({
-            message: z.string(),
+            bodyResult: z.array(z.object({ issues: z.array(z.object({})) })),
         })
         .describe("Request body, query, or parameters failed validation."),
 };
