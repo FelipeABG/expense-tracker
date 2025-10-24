@@ -74,7 +74,9 @@ describe("AuthController (e2e)", () => {
                 .send({ email: "email@email.com", password: user.password })
                 .expect(404)
                 .then((response) =>
-                    expect(response.body.message).toBe("User does not exist"),
+                    expect(response.body.message).toBe(
+                        "Specified user does not exist",
+                    ),
                 );
         });
     });

@@ -34,4 +34,39 @@ describe("Global settings (e2e)", () => {
                 });
         });
     });
+
+    describe("Authentication", () => {
+        it("Should return 401 when request is not authenticated", async () => {
+            return request(app.getHttpServer())
+                .get("/users")
+                .expect(401)
+                .then((response) =>
+                    expect(response.body.message).toBe(
+                        "Missing authentication token",
+                    ),
+                );
+        });
+    });
+
+    describe("Authorization", () => {
+        it("Should return 403 when user does not have the required privileges", async () => {
+            await request(app.getHttpServer()).post("/auth/signup").send(user);
+
+            const token = await request(app.getHttpServer())
+                .post("/auth/login")
+                .send(user)
+                .then((response) => response.body.token);
+
+            return request(app.getHttpServer())
+                .get("/users")
+                .set("Authorization", `Bearer ${token}`)
+                .send()
+                .expect(403)
+                .then((response) =>
+                    expect(response.body.message).toBe(
+                        "Access denied: Insufficient privileges",
+                    ),
+                );
+        });
+    });
 });
