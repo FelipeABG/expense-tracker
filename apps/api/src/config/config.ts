@@ -28,10 +28,16 @@ class EnviromentVariables {
     DEV_DB_URL: string;
 
     @IsString()
-    SECRET_KEY: string;
+    JWT_SECRET_KEY: string;
 
     @IsEnum(Environment)
     NODE_ENV: string;
+
+    @IsString()
+    GOOGLE_CLIENT_SECRET: string;
+
+    @IsString()
+    GOOGLE_CLIENT_ID: string;
 }
 
 export default function validate(config: Record<string, unknown>) {
