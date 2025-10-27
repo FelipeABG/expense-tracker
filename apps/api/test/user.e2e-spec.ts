@@ -1,21 +1,31 @@
+import { Test } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { App } from "supertest/types";
+import { AppModule } from "../src/app.module";
 import { UserService } from "../src/user/user.service";
 import { Role } from "../src/role/role.enum";
 import bcrypt from "bcryptjs";
-import { generateTestModule, generateTestUser } from "../src/utils/test.util";
 
 describe("UserController (e2e)", () => {
     let app: INestApplication<App>;
-    const user = generateTestUser();
-    const admin = generateTestUser();
     let userToken: string;
     let adminToken: string;
+    const user = {
+        email: `test-user${Date.now()}@gmail.com`,
+        password: "Strongassoword123!",
+    };
+    const admin = {
+        email: `test-admin${Date.now()}@gmail.com`,
+        password: "Strongassoword123!",
+    };
     const path = "/users";
 
     beforeAll(async () => {
-        const modRef = await generateTestModule();
+        const modRef = await Test.createTestingModule({
+            imports: [AppModule],
+        }).compile();
+
         app = modRef.createNestApplication();
         await app.init();
 
@@ -95,7 +105,7 @@ describe("UserController (e2e)", () => {
         describe("/users/by-email/:email", () => {
             it("Should return 200 with the specified user", async () => {
                 await request(app.getHttpServer())
-                    .get(path.concat(`/by-email/${user.email}`))
+                    .get(`/users/by-email/${user.email}`)
                     .set("Authorization", `Bearer ${adminToken}`)
                     .expect(200)
                     .then((response) => {
@@ -108,7 +118,7 @@ describe("UserController (e2e)", () => {
 
             it("Should return 404 when the user does not exist", async () => {
                 await request(app.getHttpServer())
-                    .get(path.concat("/by-email/foo@bar.com"))
+                    .get("/users/by-email/foo@gar.com")
                     .set("Authorization", `Bearer ${adminToken}`)
                     .expect(404)
                     .then((response) => {

@@ -1,14 +1,21 @@
+import { Test } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { App } from "supertest/types";
-import { generateTestModule, generateTestUser } from "../src/utils/test.util";
+import { AppModule } from "../src/app.module";
 
 describe("AuthController (e2e)", () => {
     let app: INestApplication<App>;
-    const user = generateTestUser();
+    const user = {
+        email: `test-user${Date.now()}@gmail.com`,
+        password: "Strongassoword123!",
+    };
 
     beforeAll(async () => {
-        const modRef = await generateTestModule();
+        const modRef = await Test.createTestingModule({
+            imports: [AppModule],
+        }).compile();
+
         app = modRef.createNestApplication();
         await app.init();
     });

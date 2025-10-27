@@ -1,17 +1,24 @@
+import { Test } from "@nestjs/testing";
 import { AuthService } from "./auth.service";
 import {
     ConflictException,
     NotFoundException,
     UnauthorizedException,
 } from "@nestjs/common";
-import { generateTestUser, generateTestModule } from "../utils/test.util";
+import { AppModule } from "../app.module";
 
-describe("AuthService", () => {
-    const user = generateTestUser();
+describe("UserService", () => {
+    const user = {
+        email: `test-user${Date.now()}@gmail.com`,
+        password: "Very_crazy_password",
+    };
     let authService: AuthService;
 
     beforeAll(async () => {
-        const modRef = await generateTestModule();
+        const modRef = await Test.createTestingModule({
+            imports: [AppModule],
+        }).compile();
+
         authService = modRef.get(AuthService);
     });
 
