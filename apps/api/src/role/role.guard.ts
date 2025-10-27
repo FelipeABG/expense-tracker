@@ -6,7 +6,6 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Role } from "./role.enum";
-import { Request } from "express";
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -23,8 +22,8 @@ export class RoleGuard implements CanActivate {
             return true;
         }
 
-        const request: Request = context.switchToHttp().getRequest();
-        const userRoles: Role[] = request["user"].roles;
+        const request = context.switchToHttp().getRequest();
+        const userRoles: Role[] = request.user.roles;
 
         if (!endpointRoles.some((role) => userRoles.includes(role))) {
             throw new ForbiddenException(
