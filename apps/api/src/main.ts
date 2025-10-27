@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { contract } from "contract";
 import { generateOpenApi } from "@ts-rest/open-api";
 import { SwaggerModule } from "@nestjs/swagger";
-import { description } from "./utils/description";
+import { description } from "./utils/description.util";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { cors: true });
