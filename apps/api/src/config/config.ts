@@ -32,12 +32,6 @@ class EnviromentVariables {
 
     @IsEnum(Environment)
     NODE_ENV: string;
-
-    @IsString()
-    GOOGLE_CLIENT_SECRET: string;
-
-    @IsString()
-    GOOGLE_CLIENT_ID: string;
 }
 
 export default function validate(config: Record<string, unknown>) {
