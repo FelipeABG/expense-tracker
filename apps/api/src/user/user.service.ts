@@ -15,12 +15,17 @@ export class UserService {
         private userRepository: Repository<User>,
     ) {}
 
-    async findAll(limit: number, offset: number): Promise<User[]> {
+    async findAll(
+        limit: number,
+        offset: number,
+    ): Promise<Omit<User, "hash">[]> {
         // If there are no users, returns an empty list
-        return await this.userRepository.find({
+        const users = await this.userRepository.find({
             take: limit,
             skip: offset,
         });
+
+        return users.map(({ hash, ...rest }) => rest as User);
     }
 
     async findBy(where: FindOptionsWhere<User>): Promise<User> {
