@@ -1,31 +1,21 @@
-import { Test } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { App } from "supertest/types";
-import { AppModule } from "../src/app.module";
 import { UserService } from "../src/user/user.service";
 import { Role } from "../src/role/role.enum";
 import bcrypt from "bcryptjs";
+import { generateTestModule, generateTestUser } from "../src/utils/test.util";
 
 describe("UserController (e2e)", () => {
     let app: INestApplication<App>;
     let userToken: string;
     let adminToken: string;
-    const user = {
-        email: `test-user${Date.now()}@gmail.com`,
-        password: "Strongassoword123!",
-    };
-    const admin = {
-        email: `test-admin${Date.now()}@gmail.com`,
-        password: "Strongassoword123!",
-    };
+    const user = generateTestUser();
+    const admin = generateTestUser();
     const path = "/users";
 
     beforeAll(async () => {
-        const modRef = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
+        const modRef = await generateTestModule();
         app = modRef.createNestApplication();
         await app.init();
 
