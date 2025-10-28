@@ -20,7 +20,6 @@ export class UserService {
         return await this.userRepository.find({
             take: limit,
             skip: offset,
-            select: ["id", "email", "roles"],
         });
     }
 
