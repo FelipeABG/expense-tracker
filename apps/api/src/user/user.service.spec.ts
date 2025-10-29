@@ -1,10 +1,14 @@
 import { UserService } from "./user.service";
 import { Role } from "../role/role.enum";
 import { ConflictException, NotFoundException } from "@nestjs/common";
-import { generateTestModule, generateTestUser } from "../utils/test.util";
+import {
+    generateTestModule,
+    generateTestUser,
+    UserFormat,
+} from "../utils/test.util";
 
 describe("User Service", () => {
-    const user = generateTestUser();
+    const user = generateTestUser(UserFormat.HASH);
     let userService: UserService;
 
     beforeAll(async () => {
@@ -14,12 +18,9 @@ describe("User Service", () => {
 
     describe("create", () => {
         it("Should create a new user in the db and return the created user", async () => {
-            const result = await userService.create({
-                email: user.email,
-                hash: user.password,
-            });
+            const result = await userService.create(user);
             expect(result.email).toBe(user.email);
-            expect(result.hash).toBe(user.password);
+            expect(result.hash).toBe(user.hash);
             expect(result.roles).toStrictEqual([Role.user]);
         });
 
@@ -69,10 +70,7 @@ describe("User Service", () => {
 
         it("Should update an user and return the updated user", async () => {
             //adding again the user (deleleted in the delete tests)
-            await userService.create({
-                email: user.email,
-                hash: user.password,
-            });
+            await userService.create(user);
             const result = await userService.update(
                 { email: user.email },
                 { email: newEmail },

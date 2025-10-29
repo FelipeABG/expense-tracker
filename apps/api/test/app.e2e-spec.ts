@@ -1,13 +1,17 @@
 import { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { App } from "supertest/types";
-import { generateTestModule, generateTestUser } from "../src/utils/test.util";
+import {
+    generateTestModule,
+    generateTestUser,
+    UserFormat,
+} from "../src/utils/test.util";
 
 // Test global configurations (authentication, authorization, validation).
 // If it works for one, works for all.
 describe("Global settings (e2e)", () => {
     let app: INestApplication<App>;
-    const user = generateTestUser();
+    const user = generateTestUser(UserFormat.PASSWORD);
     beforeAll(async () => {
         const modRef = await generateTestModule();
         app = modRef.createNestApplication();

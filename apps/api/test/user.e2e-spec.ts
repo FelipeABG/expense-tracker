@@ -4,14 +4,18 @@ import { App } from "supertest/types";
 import { UserService } from "../src/user/user.service";
 import { Role } from "../src/role/role.enum";
 import bcrypt from "bcryptjs";
-import { generateTestModule, generateTestUser } from "../src/utils/test.util";
+import {
+    generateTestModule,
+    generateTestUser,
+    UserFormat,
+} from "../src/utils/test.util";
 
 describe("UserController (e2e)", () => {
     let app: INestApplication<App>;
     let userToken: string;
     let adminToken: string;
-    const user = generateTestUser();
-    const admin = generateTestUser();
+    const user = generateTestUser(UserFormat.PASSWORD);
+    const admin = generateTestUser(UserFormat.PASSWORD);
     const path = "/users";
 
     beforeAll(async () => {
@@ -29,7 +33,7 @@ describe("UserController (e2e)", () => {
         //creating and getting admin token
         await modRef.get(UserService).create({
             email: admin.email,
-            hash: await bcrypt.hash(admin.password, 10),
+            hash: await bcrypt.hash(admin.password!, 10),
             roles: [Role.Admin],
         });
         adminToken = await request(app.getHttpServer())

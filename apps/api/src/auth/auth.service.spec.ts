@@ -4,10 +4,14 @@ import {
     NotFoundException,
     UnauthorizedException,
 } from "@nestjs/common";
-import { generateTestModule, generateTestUser } from "../utils/test.util";
+import {
+    generateTestModule,
+    generateTestUser,
+    UserFormat,
+} from "../utils/test.util";
 
 describe("Auth service", () => {
-    const user = generateTestUser();
+    const user = generateTestUser(UserFormat.PASSWORD);
     let authService: AuthService;
 
     beforeAll(async () => {
@@ -17,21 +21,21 @@ describe("Auth service", () => {
 
     describe("signup", () => {
         it("Should register a new user in the db and return a successfull message", async () => {
-            const result = await authService.signup(user.email, user.password);
+            const result = await authService.signup(user.email, user.password!);
 
             expect(result.message).toBe("Signed up successfully");
         });
 
         it("Should throw an error if the user already exists in the db", async () => {
             await expect(
-                authService.signup(user.email, user.password),
+                authService.signup(user.email, user.password!),
             ).rejects.toThrow(ConflictException);
         });
     });
 
     describe("login", () => {
         it("Should log a user in the system and return the jwt token", async () => {
-            const result = await authService.login(user.email, user.password);
+            const result = await authService.login(user.email, user.password!);
 
             expect(result.message).toBe("Logged in successfully");
             expect(result.token).toBeDefined();
