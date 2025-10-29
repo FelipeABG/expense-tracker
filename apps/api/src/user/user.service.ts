@@ -25,7 +25,7 @@ export class UserService {
             skip: offset,
         });
 
-        return users.map(({ hash, ...rest }) => rest as User);
+        return users.map(({ hash, ...rest }) => rest);
     }
 
     async findBy(where: FindOptionsWhere<User>): Promise<User> {
