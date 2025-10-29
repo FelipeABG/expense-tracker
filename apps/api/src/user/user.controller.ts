@@ -3,7 +3,6 @@ import { tsRestHandler, TsRestHandler } from "@ts-rest/nest";
 import { contract } from "contract";
 import { UserService } from "./user.service";
 import bcrypt from "bcryptjs";
-import { User } from "./user.entity";
 import { Roles } from "../role/role.decorator";
 import { Role } from "../role/role.enum";
 
@@ -32,10 +31,7 @@ export class UserController {
                 const limit = query?.limit ?? 100;
                 const offset = query?.offset ?? 0;
 
-                const users: User[] = await this.userService.findAll(
-                    limit,
-                    offset,
-                );
+                const users = await this.userService.findAll(limit, offset);
 
                 return {
                     status: 200,

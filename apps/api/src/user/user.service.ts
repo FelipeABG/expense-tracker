@@ -12,7 +12,7 @@ import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity
 export class UserService {
     constructor(
         @InjectRepository(User)
-        private userRepository: Repository<User>,
+        private readonly userRepository: Repository<User>,
     ) {}
 
     async findAll(
