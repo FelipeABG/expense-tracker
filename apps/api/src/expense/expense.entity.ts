@@ -16,8 +16,11 @@ export class Expense {
     date: Date;
 
     @Column({ nullable: true })
-    recurrance: number;
+    recurrence?: number;
 
-    @ManyToOne(() => User, (user) => user.expenses)
+    @ManyToOne(() => User, {
+        onDelete:
+            "CASCADE" /* If a user is deleted, all its expenses are deleted as well */,
+    })
     user: User;
 }
