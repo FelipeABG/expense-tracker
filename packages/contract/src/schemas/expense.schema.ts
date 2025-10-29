@@ -6,6 +6,6 @@ export const ExpenseSchema = z.object({
     title: z.string(),
     description: z.string(),
     date: z.date(),
-    recurrance: z.number().nullable(),
+    recurrence: z.number().nullable().optional(),
     user: UserSchema.omit({ password: true }),
 });
