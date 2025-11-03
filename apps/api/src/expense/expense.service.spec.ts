@@ -40,13 +40,21 @@ describe("Expense service", () => {
         });
     });
 
-    describe("findAllForUser", () => {
-        it("Should retrieve all expenses of specified user", async () => {
+    describe("find", () => {
+        it("Should retrieve all expenses based of find options", async () => {
             const result = await expenseService.find({
-                user: { id: user.id },
+                where: { user: { id: user.id } },
             });
 
             expect(result.length).toBe(1);
+        });
+
+        it("Should return an empty list if nothing specified is found", async () => {
+            const result = await expenseService.find({
+                where: { user: { id: 4845 } },
+            });
+
+            expect(result.length).toBe(0);
         });
     });
 });
