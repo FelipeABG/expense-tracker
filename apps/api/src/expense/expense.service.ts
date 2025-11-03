@@ -1,11 +1,7 @@
-import {
-    Injectable,
-    InternalServerErrorException,
-    NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import {
     DeepPartial,
-    FindOptionsWhere,
+    FindManyOptions,
     QueryFailedError,
     Repository,
 } from "typeorm";
@@ -19,17 +15,13 @@ export class ExpenseService {
         private readonly expenseRepository: Repository<Expense>,
     ) {}
 
-    async find(where: FindOptionsWhere<Expense>) {
+    async find(opts: FindManyOptions<Expense>) {
         // If no expenses are found returns empty array
-        const expenses = await this.expenseRepository.find({
-            where,
-            relations: { user: true },
-        });
+        const expenses = await this.expenseRepository.find(opts);
 
         return expenses.map((expense) => {
-            // Removes roles and hash from the response
-            const { hash, roles, ...rest } = expense.user;
-            return { ...expense, user: rest };
+            const { user, ...rest } = expense;
+            return rest;
         });
     }
 
@@ -38,10 +30,28 @@ export class ExpenseService {
             return await this.expenseRepository.save(expense);
         } catch (err) {
             if (err instanceof QueryFailedError) {
-                throw new NotFoundException("Specified user does not exist");
+                const driverError: any = err.driverError;
+
+                // PostgreSQL foreign key violation
+                if (driverError.code === "23503") {
+                    throw new NotFoundException(
+                        "Specified user does not exist",
+                    );
+                }
+
+                // SQLite foreign key violation (test)
+                if (
+                    driverError.message?.includes(
+                        "FOREIGN KEY constraint failed",
+                    )
+                ) {
+                    throw new NotFoundException(
+                        "Specified user does not exist",
+                    );
+                }
             }
 
-            throw new InternalServerErrorException();
+            throw err;
         }
     }
 }
