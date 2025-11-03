@@ -15,6 +15,9 @@ export class Expense {
     @Column({ type: "date" })
     date: Date;
 
+    @Column()
+    value: number;
+
     @Column({ nullable: true })
     recurrence?: number;
 
