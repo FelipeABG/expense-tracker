@@ -57,4 +57,38 @@ describe("Expense service", () => {
             expect(result.length).toBe(0);
         });
     });
+    describe("delete", () => {
+        let createdExpenseId: number;
+
+        beforeAll(async () => {
+            // Create an expense to delete
+            const created = await expenseService.create({
+                user: { id: user.id },
+                ...expense,
+            });
+
+            createdExpenseId = created.id;
+        });
+
+        it("Should delete an existing expense", async () => {
+            const result = await expenseService.delete(createdExpenseId);
+
+            expect(result).toEqual({
+                message: "Expense deleted successfully",
+            });
+
+            // Ensure it no longer exists
+            const found = await expenseService.find({
+                where: { id: createdExpenseId },
+            });
+
+            expect(found.length).toBe(0);
+        });
+
+        it("Should throw NotFoundException if deleting a non-existing expense", async () => {
+            await expect(expenseService.delete(99999)).rejects.toThrow(
+                NotFoundException,
+            );
+        });
+    });
 });
