@@ -35,7 +35,7 @@ export function generateTestExpense() {
     return {
         title: `expense-title-${randomNumber()}`,
         description: `expense-description-${randomNumber()}`,
-        date: new Date(Date.now()),
+        date: new Date(Date.now()).toISOString().split("T")[0],
         value: 420.0,
         recurrence: undefined,
     };
