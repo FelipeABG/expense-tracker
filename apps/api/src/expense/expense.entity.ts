@@ -13,7 +13,7 @@ export class Expense {
     description: string;
 
     @Column({ type: "date" })
-    date: Date;
+    date: Date | string;
 
     @Column()
     value: number;

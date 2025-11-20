@@ -54,4 +54,16 @@ export class ExpenseService {
             throw err;
         }
     }
+
+    async delete(id: number) {
+        const expense = await this.expenseRepository.findOne({ where: { id } });
+
+        if (!expense) {
+            throw new NotFoundException("Expense not found");
+        }
+
+        await this.expenseRepository.remove(expense);
+
+        return { message: "Expense deleted successfully" };
+    }
 }
