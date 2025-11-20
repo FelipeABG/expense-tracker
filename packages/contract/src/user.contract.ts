@@ -163,6 +163,67 @@ export const userContract = c.router(
                 ...InternalErrorResponse,
             },
         },
+        updateById: {
+            method: "PATCH",
+            path: "/:id",
+            summary: "Update an user by it's id.",
+            description:
+                "Update an user by it's id. If there is no such user, returns 404 http code. Only provided fields will be updated.",
+            pathParams: z.object({
+                id: z.coerce.number().positive(),
+            }),
+            body: UserSchema.omit({ id: true, roles: true }).partial(),
+            responses: {
+                200: z
+                    .object({
+                        message: z.string(),
+                        user: UserSchema.omit({ password: true }),
+                    })
+                    .describe("User successfully updated."),
+                404: z
+                    .object({
+                        message: z.string(),
+                    })
+                    .describe("User not found in the system."),
+                409: z.object({
+                    message: z.string(),
+                }),
+                ...BadRequestResponse,
+                ...ForbiddenResponse,
+                ...InternalErrorResponse,
+            },
+        },
+
+        updateByEmail: {
+            method: "PATCH",
+            path: "/by-email/:email",
+            summary: "Update an user by it's email.",
+            description:
+                "Update an user by it's email. If there is no such user, returns 404 http code. Only provided fields will be updated.",
+            pathParams: z.object({
+                email: z.string().email(),
+            }),
+            body: UserSchema.omit({ id: true, roles: true }).partial(),
+            responses: {
+                200: z
+                    .object({
+                        message: z.string(),
+                        user: UserSchema.omit({ password: true }),
+                    })
+                    .describe("User successfully updated."),
+                404: z
+                    .object({
+                        message: z.string(),
+                    })
+                    .describe("User not found in the system."),
+                409: z.object({
+                    message: z.string(),
+                }),
+                ...BadRequestResponse,
+                ...ForbiddenResponse,
+                ...InternalErrorResponse,
+            },
+        },
     },
     { pathPrefix: "/users" },
 );

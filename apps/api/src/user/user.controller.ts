@@ -81,6 +81,59 @@ export class UserController {
                     body: { message: "User deleted successfully" },
                 };
             },
+            updateById: async ({ params, body }) => {
+                const changes: any = {};
+
+                if (body.email) {
+                    changes.email = body.email;
+                }
+
+                if (body.password) {
+                    changes.hash = await bcrypt.hash(body.password, 10);
+                }
+
+                const updatedUser = await this.userService.update(
+                    { id: params.id },
+                    changes,
+                );
+
+                const { hash, ...userWithoutHash } = updatedUser;
+
+                return {
+                    status: 200,
+                    body: {
+                        message: "User updated successfully",
+                        user: userWithoutHash,
+                    },
+                };
+            },
+
+            updateByEmail: async ({ params, body }) => {
+                const changes: any = {};
+
+                if (body.email) {
+                    changes.email = body.email;
+                }
+
+                if (body.password) {
+                    changes.hash = await bcrypt.hash(body.password, 10);
+                }
+
+                const updatedUser = await this.userService.update(
+                    { email: params.email },
+                    changes,
+                );
+
+                const { hash, ...userWithoutHash } = updatedUser;
+
+                return {
+                    status: 200,
+                    body: {
+                        message: "User updated successfully",
+                        user: userWithoutHash,
+                    },
+                };
+            },
         });
     }
 }

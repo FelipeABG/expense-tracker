@@ -65,14 +65,24 @@ export class UserService {
         changes: QueryDeepPartialEntity<User>,
     ) {
         const user = await this.findBy(where);
-
         if (!user) {
             throw new NotFoundException("Requested user does not exist");
         }
 
-        //Merge the user changes
-        Object.assign(user, changes);
+        // Check if email is being changed and if it already exists
+        if (changes.email && changes.email !== user.email) {
+            const existingUser = await this.userRepository.findOne({
+                where: { email: changes.email as string },
+            });
+            if (existingUser) {
+                throw new ConflictException(
+                    "Email address is already registered",
+                );
+            }
+        }
 
+        // Merge the user changes
+        Object.assign(user, changes);
         const updatedUser = await this.userRepository.save(user);
         return updatedUser;
     }
