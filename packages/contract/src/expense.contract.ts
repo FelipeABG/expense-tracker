@@ -51,6 +51,29 @@ export const expenseContract = c.router(
                 ...InternalErrorResponse,
             },
         },
+        updateForUser: {
+            method: "PATCH",
+            path: "/:id",
+            summary: "Update the specified expense of the logged user",
+            description:
+                "Update the specified expense of the logged user. If the given expense is not from the user, a forbidden message is returned. Only provided fields will be updated.",
+            pathParams: z.object({ id: z.coerce.number().positive() }),
+            body: ExpenseSchema.omit({ user: true, id: true }).partial(),
+            responses: {
+                200: z.object({
+                    message: z.string(),
+                    expense: ExpenseSchema.omit({ user: true }),
+                }),
+                403: z.object({
+                    message: z.string(),
+                }),
+                404: z.object({
+                    message: z.string(),
+                }),
+                ...BadRequestResponse,
+                ...InternalErrorResponse,
+            },
+        },
     },
     { pathPrefix: "/expense" },
 );
