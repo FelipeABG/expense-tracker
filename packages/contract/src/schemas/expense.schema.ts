@@ -5,8 +5,8 @@ export const ExpenseSchema = z.object({
     id: z.number(),
     title: z.string(),
     description: z.string(),
-    date: z.date(),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     value: z.number().positive(),
-    recurrence: z.number().nullable().optional(),
+    recurrence: z.number().optional(),
     user: UserSchema.omit({ password: true }),
 });
