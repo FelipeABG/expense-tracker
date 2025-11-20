@@ -231,7 +231,7 @@ describe("UserController (e2e)", () => {
             beforeEach(async () => {
                 // Create a fresh test user for each update test
                 testUser = generateTestUser(UserFormat.PASSWORD);
-                const response = await request(app.getHttpServer())
+                await request(app.getHttpServer())
                     .post(path)
                     .send(testUser)
                     .set("Authorization", `Bearer ${adminToken}`);
