@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
-import { TrendingUp, TrendingDown, Home, LogOut, Shield } from "lucide-react";
+import { TrendingUp, TrendingDown, Home, LogOut, Shield, User, Target } from "lucide-react";
 import { removeAuthToken, getAuthToken } from "../services/api";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -9,6 +9,7 @@ const navItems = [
     { path: "/inicio", label: "Dashboard", icon: Home },
     { path: "/despesas", label: "Despesas", icon: TrendingDown },
     { path: "/lucros", label: "Lucros", icon: TrendingUp },
+    { path: "/metas", label: "Metas", icon: Target },
 ];
 
 const adminNavItem = {
@@ -72,20 +73,22 @@ export function Navbar() {
                                     </Link>
                                 );
                             })}
-                            {isAdmin && (() => {
-                                const Icon = adminNavItem.icon;
+                            {(() => {
+                                const Icon = isAdmin ? adminNavItem.icon : User;
+                                const label = isAdmin ? adminNavItem.label : "Meu Perfil";
+                                const path = adminNavItem.path;
                                 return (
                                     <Link
-                                        to={adminNavItem.path}
+                                        to={path}
                                         className={cn(
                                             "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                                            location.pathname === adminNavItem.path
+                                            location.pathname === path
                                                 ? "bg-primary text-primary-foreground"
                                                 : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                                         )}
                                     >
                                         <Icon className="h-4 w-4" />
-                                        {adminNavItem.label}
+                                        {label}
                                     </Link>
                                 );
                             })()}

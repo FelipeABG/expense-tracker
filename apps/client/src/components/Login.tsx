@@ -37,7 +37,7 @@ export function Login() {
         // 2. Tentar recuperar senha salva do localStorage
         let password = getGooglePassword(email)
 
-        // 3. Se não tiver senha salva, criar novo usuário
+        // 3. Se não tiver senha salva, tentar criar usuário
         if (!password) {
           // Gerar senha segura
           password = generateSecurePassword()
@@ -54,27 +54,41 @@ export function Login() {
             if (signupResponse.status === 201) {
               // Usuário criado com sucesso, salvar senha
               storeGooglePassword(email, password)
-            } else if (signupResponse.status === 409) {
-              // Usuário já existe, mas não temos a senha salva
-              // Isso não deveria acontecer, mas se acontecer, gerar nova senha
-              // e tentar fazer login (vai falhar, mas é melhor que travar)
-              throw new Error("Usuário já existe. Por favor, use login normal.")
-            } else {
-              throw new Error("Erro ao criar usuário")
             }
           } catch (err: any) {
-            // Se o erro for 409 (conflito), significa que o usuário já existe
-            // mas não temos a senha. Nesse caso, não podemos continuar.
-            if (err.status === 409 || err.message?.includes("409")) {
+            // Verificar se é erro 409 (usuário já existe)
+            const errorStatus = err.status || err.response?.status || err.body?.status
+            const errorBody = err.body || err.response?.body || {}
+            const errorMessage = err.message || errorBody.message || ""
+            
+            const isConflictError = 
+              errorStatus === 409 || 
+              errorMessage.includes("409") ||
+              errorMessage.includes("já existe") || 
+              errorMessage.includes("already exists") ||
+              errorMessage.includes("já cadastrado") ||
+              errorMessage.includes("already registered") ||
+              errorMessage.includes("Email address is already registered")
+            
+            if (isConflictError) {
+              // Usuário já existe - não criar, mas não temos senha para fazer login
+              removeGooglePassword(email)
               throw new Error(
-                "Usuário já cadastrado. Por favor, use login com email e senha ou entre em contato com o suporte.",
+                "Este email já está cadastrado. Entre em contato com um administrador para recuperar o acesso."
               )
             }
+            // Se for outro erro, propagar
             throw err
           }
         }
 
         // 4. Fazer login com email e senha
+        if (!password) {
+          throw new Error(
+            "Erro ao obter credenciais. Tente novamente."
+          )
+        }
+
         const loginResponse = await apiClient.Authentication.login({
           body: {
             email,
@@ -86,11 +100,12 @@ export function Login() {
           // Se o login falhar, pode ser que a senha foi alterada no backend
           // Remover senha salva e tentar novamente
           removeGooglePassword(email)
-          throw new Error("Erro ao fazer login. Tente novamente.")
+          const errorMsg = loginResponse.body?.message || "Erro ao fazer login. Tente novamente."
+          throw new Error(errorMsg)
         }
 
         // 5. Salvar o token JWT
-        if (loginResponse.body.token) {
+        if (loginResponse.body?.token) {
           setAuthToken(loginResponse.body.token)
           toast.success("Login realizado com sucesso!")
           // Redirecionar para dashboard ou página principal
@@ -99,8 +114,18 @@ export function Login() {
           throw new Error("Token não recebido")
         }
       } catch (err: any) {
-        console.error("Erro ao fazer login:", err)
-        const errorMessage = err.message || "Erro ao fazer login. Tente novamente."
+        let errorMessage = "Erro ao fazer login. Tente novamente."
+        
+        if (err.message) {
+          errorMessage = err.message
+        } else if (err.body?.message) {
+          errorMessage = err.body.message
+        } else if (err.response?.body?.message) {
+          errorMessage = err.response.body.message
+        } else if (typeof err === 'string') {
+          errorMessage = err
+        }
+        
         setError(errorMessage)
         toast.error(errorMessage)
       } finally {
@@ -108,7 +133,6 @@ export function Login() {
       }
     },
     onError: (error) => {
-      console.error("Erro detalhado do Google OAuth:", error)
       const errorMessage = `Erro ao fazer login com Google: ${error.error || error.error_description || "Erro desconhecido"}`
       setError(errorMessage)
       toast.error(errorMessage)

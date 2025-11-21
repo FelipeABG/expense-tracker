@@ -4,7 +4,8 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { getAuthenticatedClient } from "../services/api";
-import { Plus, Trash2, Search, X } from "lucide-react";
+import { useUser } from "../contexts/UserContext";
+import { Plus, Trash2, Search, X, Edit, User } from "lucide-react";
 import { toast } from "sonner";
 
 interface User {
@@ -14,16 +15,30 @@ interface User {
 }
 
 export function Admin() {
+    const { user, isAdmin } = useUser();
     const [users, setUsers] = useState<User[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [editingId, setEditingId] = useState<number | null>(null);
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [filters, setFilters] = useState({ email: "", role: "" });
+    const [profileFormData, setProfileFormData] = useState({ email: "", password: "" });
 
     useEffect(() => {
-        loadUsers();
-    }, []);
+        if (isAdmin) {
+            loadUsers();
+        } else {
+            // Carregar dados do perfil do usuário
+            if (user) {
+                setProfileFormData({
+                    email: user.email,
+                    password: "",
+                });
+            }
+            setLoading(false);
+        }
+    }, [isAdmin, user]);
 
     async function loadUsers() {
         try {
@@ -129,6 +144,122 @@ export function Admin() {
         }
     }
 
+    async function handleUpdate(id: number) {
+        try {
+            const client = getAuthenticatedClient();
+            const updateBody: any = {};
+            
+            if (formData.email) updateBody.email = formData.email;
+            if (formData.password) updateBody.password = formData.password;
+
+            const response = await client.User.updateById({
+                params: { id },
+                body: updateBody,
+            });
+
+            if (response.status === 200) {
+                toast.success("Usuário atualizado com sucesso!");
+                setEditingId(null);
+                setFormData({ email: "", password: "" });
+                loadUsers();
+            } else {
+                if (response.status === 400) {
+                    const body = response.body as any;
+                    if (body && typeof body === "object" && "bodyResult" in body) {
+                        const bodyResult = body.bodyResult;
+                        if (bodyResult?.issues && Array.isArray(bodyResult.issues)) {
+                            const errorMessages = bodyResult.issues.map(
+                                (issue: any) => issue.message
+                            );
+                            toast.error(
+                                <div>
+                                    <div className="font-semibold mb-1">
+                                        Erros de validação:
+                                    </div>
+                                    <ul className="list-disc list-inside space-y-1">
+                                        {errorMessages.map(
+                                            (msg: string, index: number) => (
+                                                <li key={index} className="text-sm">
+                                                    {msg}
+                                                </li>
+                                            )
+                                        )}
+                                    </ul>
+                                </div>,
+                                { duration: 5000 }
+                            );
+                        } else if (
+                            body &&
+                            typeof body === "object" &&
+                            "message" in body
+                        ) {
+                            toast.error(String(body.message));
+                        } else {
+                            toast.error(
+                                "Dados inválidos. Verifique os campos preenchidos."
+                            );
+                        }
+                    } else if (
+                        body &&
+                        typeof body === "object" &&
+                        "message" in body
+                    ) {
+                        toast.error(String(body.message));
+                    } else {
+                        toast.error(
+                            "Erro ao atualizar usuário. Verifique os dados informados."
+                        );
+                    }
+                } else if (response.status === 403) {
+                    toast.error("Você não tem permissão para editar este usuário");
+                } else if (response.status === 404) {
+                    toast.error("Usuário não encontrado");
+                } else if (response.status === 409) {
+                    if (response.body && typeof response.body === "object" && "message" in response.body) {
+                        toast.error(String(response.body.message));
+                    } else {
+                        toast.error("Email já cadastrado");
+                    }
+                } else {
+                    toast.error(
+                        `Erro ao atualizar usuário (${response.status})`
+                    );
+                }
+            }
+        } catch (error: any) {
+            console.error("Erro ao atualizar usuário:", error);
+            let errorMessage = "Erro ao atualizar usuário";
+
+            if (error?.body?.message) {
+                errorMessage = error.body.message;
+            } else if (error?.body?.error) {
+                errorMessage = error.body.error;
+            } else if (error?.response?.body?.message) {
+                errorMessage = error.response.body.message;
+            } else if (error?.message) {
+                errorMessage = error.message;
+            } else if (typeof error === "string") {
+                errorMessage = error;
+            }
+
+            toast.error(errorMessage);
+        }
+    }
+
+    function handleEdit(user: User) {
+        setEditingId(user.id);
+        setShowCreateForm(false);
+        setFormData({
+            email: user.email,
+            password: "",
+        });
+    }
+
+    function cancelEdit() {
+        setEditingId(null);
+        setFormData({ email: "", password: "" });
+    }
+
     async function handleDelete(id: number) {
         if (!confirm("Tem certeza que deseja deletar este usuário?")) {
             return;
@@ -176,6 +307,7 @@ export function Admin() {
         setFilteredUsers(filtered);
     }, [filters, users]);
 
+
     function clearFilters() {
         setFilters({ email: "", role: "" });
     }
@@ -190,6 +322,79 @@ export function Admin() {
         );
     }
 
+    // Se não for admin, mostrar página de perfil
+    if (!isAdmin) {
+        return (
+            <div className="container mx-auto p-6 space-y-6">
+                <div>
+                    <h1 className="text-3xl font-bold">Meu Perfil</h1>
+                    <p className="text-muted-foreground">
+                        Gerencie suas informações pessoais
+                    </p>
+                </div>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <User className="h-5 w-5" />
+                            Informações do Perfil
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="profile-email">Email</Label>
+                            <Input
+                                id="profile-email"
+                                type="email"
+                                value={profileFormData.email}
+                                onChange={(e) =>
+                                    setProfileFormData({
+                                        ...profileFormData,
+                                        email: e.target.value,
+                                    })
+                                }
+                                placeholder="usuario@exemplo.com"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="profile-password">
+                                Senha (deixe em branco para não alterar)
+                            </Label>
+                            <Input
+                                id="profile-password"
+                                type="password"
+                                value={profileFormData.password}
+                                onChange={(e) =>
+                                    setProfileFormData({
+                                        ...profileFormData,
+                                        password: e.target.value,
+                                    })
+                                }
+                                placeholder="Nova senha"
+                            />
+                        </div>
+                        {user && (
+                            <div className="space-y-2">
+                                <Label>Roles</Label>
+                                <div className="p-2 border rounded-md bg-muted">
+                                    <p className="text-sm">
+                                        {user.roles?.join(", ") || "Nenhum"}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                        <div className="p-4 bg-muted rounded-md">
+                            <p className="text-sm text-muted-foreground">
+                                Para alterar seu perfil, entre em contato com um administrador do sistema.
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    // Se for admin, mostrar página de administração
     return (
         <div className="container mx-auto p-6 space-y-6">
             <div className="flex items-center justify-between">
@@ -208,10 +413,14 @@ export function Admin() {
                 </Button>
             </div>
 
-            {showCreateForm && (
+            {(showCreateForm || editingId !== null) && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Criar Novo Usuário</CardTitle>
+                        <CardTitle>
+                            {editingId !== null
+                                ? "Editar Usuário"
+                                : "Criar Novo Usuário"}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
@@ -230,7 +439,9 @@ export function Admin() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="password">Senha</Label>
+                            <Label htmlFor="password">
+                                Senha {editingId !== null && "(deixe em branco para não alterar)"}
+                            </Label>
                             <Input
                                 id="password"
                                 type="password"
@@ -245,16 +456,31 @@ export function Admin() {
                             />
                         </div>
                         <div className="flex gap-2">
-                            <Button onClick={handleCreate}>Criar</Button>
-                            <Button
-                                variant="outline"
-                                onClick={() => {
-                                    setShowCreateForm(false);
-                                    setFormData({ email: "", password: "" });
-                                }}
-                            >
-                                Cancelar
-                            </Button>
+                            {editingId !== null ? (
+                                <>
+                                    <Button
+                                        onClick={() => handleUpdate(editingId)}
+                                    >
+                                        Salvar
+                                    </Button>
+                                    <Button variant="outline" onClick={cancelEdit}>
+                                        Cancelar
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button onClick={handleCreate}>Criar</Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setShowCreateForm(false);
+                                            setFormData({ email: "", password: "" });
+                                        }}
+                                    >
+                                        Cancelar
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -338,6 +564,15 @@ export function Admin() {
                                         </p>
                                     </div>
                                     <div className="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleEdit(user)}
+                                            className="flex items-center gap-2"
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                            Editar
+                                        </Button>
                                         <Button
                                             variant="destructive"
                                             size="sm"

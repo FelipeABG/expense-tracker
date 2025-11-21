@@ -5,6 +5,8 @@ import { Navbar } from "./components/Navbar";
 import { Dashboard } from "./pages/Dashboard";
 import { Admin } from "./pages/Admin";
 import { Expenses } from "./pages/Expenses";
+import { Profits } from "./pages/Profits";
+import { Goals } from "./pages/Goals";
 import { getAuthToken } from "./services/api";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { UserProvider } from "./contexts/UserContext";
@@ -67,12 +69,16 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Navbar />
-                                <div className="container mx-auto p-6">
-                                    <h1 className="text-3xl font-bold">Lucros</h1>
-                                    <p className="text-muted-foreground">
-                                        Página de lucros (em desenvolvimento)
-                                    </p>
-                                </div>
+                                <Profits />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/metas"
+                        element={
+                            <ProtectedRoute>
+                                <Navbar />
+                                <Goals />
                             </ProtectedRoute>
                         }
                     />

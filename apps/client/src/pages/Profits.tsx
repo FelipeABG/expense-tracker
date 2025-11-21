@@ -8,7 +8,7 @@ import { Plus, Trash2, Search, X, Edit, BarChart3, PieChart } from "lucide-react
 import { toast } from "sonner";
 import { BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-interface Expense {
+interface Profit {
     id: number;
     title: string;
     description: string;
@@ -17,9 +17,9 @@ interface Expense {
     recurrence?: number;
 }
 
-export function Expenses() {
-    const [expenses, setExpenses] = useState<Expense[]>([]);
-    const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
+export function Profits() {
+    const [profits, setProfits] = useState<Profit[]>([]);
+    const [filteredProfits, setFilteredProfits] = useState<Profit[]>([]);
     const [loading, setLoading] = useState(true);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -38,25 +38,25 @@ export function Expenses() {
     const [chartType, setChartType] = useState<"bar" | "pie">("bar");
 
     useEffect(() => {
-        loadExpenses();
+        loadProfits();
     }, []);
 
-    async function loadExpenses() {
+    async function loadProfits() {
         try {
             const client = getAuthenticatedClient();
-            const response = await client.Expense.getAllforUser();
+            const response = await client.Revenue.getAllforUser();
 
             if (response.status === 200) {
-                const expensesList = response.body || [];
-                setExpenses(expensesList);
-                setFilteredExpenses(expensesList);
+                const profitsList = response.body || [];
+                setProfits(profitsList);
+                setFilteredProfits(profitsList);
             }
         } catch (error: any) {
-            console.error("Erro ao carregar despesas:", error);
+            console.error("Erro ao carregar lucros:", error);
             const errorMessage =
                 error.body?.message ||
                 error.message ||
-                "Erro ao carregar despesas";
+                "Erro ao carregar lucros";
             toast.error(errorMessage);
         } finally {
             setLoading(false);
@@ -66,7 +66,7 @@ export function Expenses() {
     async function handleCreate() {
         try {
             const client = getAuthenticatedClient();
-            const response = await client.Expense.createForUser({
+            const response = await client.Revenue.createForUser({
                 body: {
                     title: formData.title,
                     description: formData.description,
@@ -79,7 +79,7 @@ export function Expenses() {
             });
 
             if (response.status === 201) {
-                toast.success("Despesa criada com sucesso!");
+                toast.success("Lucro criado com sucesso!");
                 setShowCreateForm(false);
                 setFormData({
                     title: "",
@@ -88,7 +88,7 @@ export function Expenses() {
                     value: "",
                     recurrence: "",
                 });
-                loadExpenses();
+                loadProfits();
             } else {
                 // Tratar erros de validação ou outros erros
                 if (response.status === 400) {
@@ -138,19 +138,18 @@ export function Expenses() {
                         toast.error(String(body.message));
                     } else {
                         toast.error(
-                            "Erro ao criar despesa. Verifique os dados informados."
+                            "Erro ao criar lucro. Verifique os dados informados."
                         );
                     }
-                } 
-                {
+                } else {
                     toast.error(
-                        `Erro ao criar despesa (${response.status})`
+                        `Erro ao criar lucro (${response.status})`
                     );
                 }
             }
         } catch (error: any) {
-            console.error("Erro ao criar despesa:", error);
-            let errorMessage = "Erro ao criar despesa";
+            console.error("Erro ao criar lucro:", error);
+            let errorMessage = "Erro ao criar lucro";
 
             // Tentar diferentes formatos de erro
             if (error?.body?.message) {
@@ -182,13 +181,13 @@ export function Expenses() {
                 updateBody.recurrence = parseInt(formData.recurrence);
             }
 
-            const response = await client.Expense.updateForUser({
+            const response = await client.Revenue.updateForUser({
                 params: { id },
                 body: updateBody,
             });
 
             if (response.status === 200) {
-                toast.success("Despesa atualizada com sucesso!");
+                toast.success("Lucro atualizado com sucesso!");
                 setEditingId(null);
                 setFormData({
                     title: "",
@@ -197,7 +196,7 @@ export function Expenses() {
                     value: "",
                     recurrence: "",
                 });
-                loadExpenses();
+                loadProfits();
             } else {
                 if (response.status === 400) {
                     const body = response.body as any;
@@ -243,22 +242,22 @@ export function Expenses() {
                         toast.error(String(body.message));
                     } else {
                         toast.error(
-                            "Erro ao atualizar despesa. Verifique os dados informados."
+                            "Erro ao atualizar lucro. Verifique os dados informados."
                         );
                     }
                 } else if (response.status === 403) {
-                    toast.error("Você não tem permissão para editar esta despesa");
+                    toast.error("Você não tem permissão para editar este lucro");
                 } else if (response.status === 404) {
-                    toast.error("Despesa não encontrada");
+                    toast.error("Lucro não encontrado");
                 } else {
                     toast.error(
-                        `Erro ao atualizar despesa (${response.status})`
+                        `Erro ao atualizar lucro (${response.status})`
                     );
                 }
             }
         } catch (error: any) {
-            console.error("Erro ao atualizar despesa:", error);
-            let errorMessage = "Erro ao atualizar despesa";
+            console.error("Erro ao atualizar lucro:", error);
+            let errorMessage = "Erro ao atualizar lucro";
 
             if (error?.body?.message) {
                 errorMessage = error.body.message;
@@ -276,15 +275,15 @@ export function Expenses() {
         }
     }
 
-    function handleEdit(expense: Expense) {
-        setEditingId(expense.id);
+    function handleEdit(profit: Profit) {
+        setEditingId(profit.id);
         setShowCreateForm(false);
         setFormData({
-            title: expense.title,
-            description: expense.description,
-            date: expense.date,
-            value: expense.value.toString(),
-            recurrence: expense.recurrence?.toString() || "",
+            title: profit.title,
+            description: profit.description,
+            date: profit.date,
+            value: profit.value.toString(),
+            recurrence: profit.recurrence?.toString() || "",
         });
     }
 
@@ -300,41 +299,41 @@ export function Expenses() {
     }
 
     async function handleDelete(id: number) {
-        if (!confirm("Tem certeza que deseja deletar esta despesa?")) {
+        if (!confirm("Tem certeza que deseja deletar este lucro?")) {
             return;
         }
 
         try {
             const client = getAuthenticatedClient();
-            const response = await client.Expense.deleteForUser({
+            const response = await client.Revenue.deleteForUser({
                 params: { id },
             });
 
             if (response.status === 200) {
-                toast.success("Despesa deletada com sucesso!");
-                loadExpenses();
+                toast.success("Lucro deletado com sucesso!");
+                loadProfits();
             }
         } catch (error: any) {
-            console.error("Erro ao deletar despesa:", error);
+            console.error("Erro ao deletar lucro:", error);
             const errorMessage =
                 error.body?.message ||
                 error.message ||
-                "Erro ao deletar despesa";
+                "Erro ao deletar lucro";
             toast.error(errorMessage);
         }
     }
 
     useEffect(() => {
-        let filtered = [...expenses];
+        let filtered = [...profits];
 
         // Filtrar por busca (título ou descrição)
         if (filters.search) {
             filtered = filtered.filter(
-                (expense) =>
-                    expense.title
+                (profit) =>
+                    profit.title
                         .toLowerCase()
                         .includes(filters.search.toLowerCase()) ||
-                    expense.description
+                    profit.description
                         .toLowerCase()
                         .includes(filters.search.toLowerCase())
             );
@@ -342,11 +341,11 @@ export function Expenses() {
 
         // Filtrar por data
         if (filters.date) {
-            filtered = filtered.filter((expense) => expense.date === filters.date);
+            filtered = filtered.filter((profit) => profit.date === filters.date);
         }
 
-        setFilteredExpenses(filtered);
-    }, [filters, expenses]);
+        setFilteredProfits(filtered);
+    }, [filters, profits]);
 
     function clearFilters() {
         setFilters({ search: "", date: "" });
@@ -368,8 +367,8 @@ export function Expenses() {
     function getChartData() {
         const dataMap = new Map<string, number>();
 
-        expenses.forEach((expense) => {
-            const date = new Date(expense.date);
+        profits.forEach((profit) => {
+            const date = new Date(profit.date);
             let key: string;
 
             if (chartView === "monthly") {
@@ -379,7 +378,7 @@ export function Expenses() {
             }
 
             const currentValue = dataMap.get(key) || 0;
-            dataMap.set(key, currentValue + expense.value);
+            dataMap.set(key, currentValue + profit.value);
         });
 
         const chartData = Array.from(dataMap.entries())
@@ -408,7 +407,7 @@ export function Expenses() {
     }
 
     const chartData = getChartData();
-    const COLORS = ["#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16", "#22c55e", "#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6"];
+    const COLORS = ["#22c55e", "#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e", "#ef4444"];
 
     if (loading) {
         return (
@@ -424,9 +423,9 @@ export function Expenses() {
         <div className="container mx-auto p-6 space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold">Despesas</h1>
+                    <h1 className="text-3xl font-bold">Lucros</h1>
                     <p className="text-muted-foreground">
-                        Gerencie suas despesas
+                        Gerencie seus lucros e receitas
                     </p>
                 </div>
                 <Button
@@ -434,7 +433,7 @@ export function Expenses() {
                     className="flex items-center gap-2"
                 >
                     <Plus className="h-4 w-4" />
-                    Nova Despesa
+                    Novo Lucro
                 </Button>
             </div>
 
@@ -442,7 +441,7 @@ export function Expenses() {
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
-                        <CardTitle>Gráfico de Despesas</CardTitle>
+                        <CardTitle>Gráfico de Lucros</CardTitle>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <Label htmlFor="chart-view">Período:</Label>
@@ -487,7 +486,7 @@ export function Expenses() {
                 <CardContent>
                     {chartData.length === 0 ? (
                         <p className="text-muted-foreground text-center py-8">
-                            Nenhuma despesa para exibir no gráfico
+                            Nenhum lucro para exibir no gráfico
                         </p>
                     ) : (
                         <ResponsiveContainer width="100%" height={400}>
@@ -504,8 +503,8 @@ export function Expenses() {
                                     <Legend />
                                     <Bar
                                         dataKey="value"
-                                        fill="#ef4444"
-                                        name="Despesas"
+                                        fill="#22c55e"
+                                        name="Lucros"
                                     />
                                 </BarChart>
                             ) : (
@@ -547,8 +546,8 @@ export function Expenses() {
                     <CardHeader>
                         <CardTitle>
                             {editingId !== null
-                                ? "Editar Despesa"
-                                : "Criar Nova Despesa"}
+                                ? "Editar Lucro"
+                                : "Criar Novo Lucro"}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -564,7 +563,7 @@ export function Expenses() {
                                         title: e.target.value,
                                     })
                                 }
-                                placeholder="Ex: Aluguel"
+                                placeholder="Ex: Salário"
                             />
                         </div>
                         <div className="space-y-2">
@@ -579,7 +578,7 @@ export function Expenses() {
                                         description: e.target.value,
                                     })
                                 }
-                                placeholder="Ex: Pagamento mensal do aluguel"
+                                placeholder="Ex: Salário mensal"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -630,7 +629,7 @@ export function Expenses() {
                                         recurrence: e.target.value,
                                     })
                                 }
-                                placeholder="Ex: 30 (para despesas mensais)"
+                                placeholder="Ex: 30 (para receitas mensais)"
                             />
                         </div>
                         <div className="flex gap-2">
@@ -673,8 +672,8 @@ export function Expenses() {
             <Card>
                 <CardHeader>
                     <CardTitle>
-                        Despesas ({filteredExpenses.length} de{" "}
-                        {expenses.length})
+                        Lucros ({filteredProfits.length} de{" "}
+                        {profits.length})
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -727,38 +726,38 @@ export function Expenses() {
                         )}
                     </div>
 
-                    {/* Lista de despesas */}
-                    {filteredExpenses.length === 0 ? (
+                    {/* Lista de lucros */}
+                    {filteredProfits.length === 0 ? (
                         <p className="text-muted-foreground">
-                            {expenses.length === 0
-                                ? "Nenhuma despesa encontrada"
-                                : "Nenhuma despesa corresponde aos filtros"}
+                            {profits.length === 0
+                                ? "Nenhum lucro encontrado"
+                                : "Nenhum lucro corresponde aos filtros"}
                         </p>
                     ) : (
                         <div className="space-y-2">
-                            {filteredExpenses.map((expense) => (
+                            {filteredProfits.map((profit) => (
                                 <div
-                                    key={expense.id}
+                                    key={profit.id}
                                     className="flex items-center justify-between p-4 border rounded-md"
                                 >
                                     <div className="flex-1">
                                         <p className="font-medium">
-                                            {expense.title}
+                                            {profit.title}
                                         </p>
                                         <p className="text-sm text-muted-foreground">
-                                            {expense.description}
+                                            {profit.description}
                                         </p>
                                         <div className="flex gap-4 mt-2 text-sm">
                                             <span className="text-muted-foreground">
-                                                Data: {formatDate(expense.date)}
+                                                Data: {formatDate(profit.date)}
                                             </span>
-                                            <span className="font-semibold text-red-600">
-                                                {formatCurrency(expense.value)}
+                                            <span className="font-semibold text-green-600">
+                                                {formatCurrency(profit.value)}
                                             </span>
-                                            {expense.recurrence && (
+                                            {profit.recurrence && (
                                                 <span className="text-muted-foreground">
                                                     Recorrência: a cada{" "}
-                                                    {expense.recurrence} dias
+                                                    {profit.recurrence} dias
                                                 </span>
                                             )}
                                         </div>
@@ -767,7 +766,7 @@ export function Expenses() {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handleEdit(expense)}
+                                            onClick={() => handleEdit(profit)}
                                             className="flex items-center gap-2"
                                         >
                                             <Edit className="h-4 w-4" />
@@ -777,7 +776,7 @@ export function Expenses() {
                                             variant="destructive"
                                             size="sm"
                                             onClick={() =>
-                                                handleDelete(expense.id)
+                                                handleDelete(profit.id)
                                             }
                                             className="flex items-center gap-2"
                                         >
