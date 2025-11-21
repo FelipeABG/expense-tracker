@@ -26,7 +26,7 @@ import { ExpenseModule } from "./expense/expense.module";
                     };
                 }
                 return {
-                    type: "postgres",
+                    type: "mysql",
                     url: configService.get(
                         ENV === "prod" ? "DB_URL" : "DEV_DB_URL",
                     ),
