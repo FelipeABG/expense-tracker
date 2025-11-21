@@ -61,4 +61,31 @@ export class ExpenseService {
             throw err;
         }
     }
+
+    async delete(id: number) {
+        const expense = await this.expenseRepository.findOne({ where: { id } });
+
+        if (!expense) {
+            throw new NotFoundException("Expense not found");
+        }
+
+        await this.expenseRepository.remove(expense);
+
+        return { message: "Expense deleted successfully" };
+    }
+
+    async update(id: number, changes: DeepPartial<Expense>) {
+        const expense = await this.expenseRepository.findOne({ where: { id } });
+        if (!expense) {
+            throw new NotFoundException("Expense not found");
+        }
+
+        // Merge the expense changes
+        Object.assign(expense, changes);
+        const updatedExpense = await this.expenseRepository.save(expense);
+
+        // Remove user from response
+        const { user, ...rest } = updatedExpense;
+        return rest;
+    }
 }

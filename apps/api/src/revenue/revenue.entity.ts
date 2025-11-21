@@ -2,7 +2,7 @@ import { User } from "../user/user.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Expense {
+export class Revenue {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -23,7 +23,7 @@ export class Expense {
 
     @ManyToOne(() => User, {
         onDelete:
-            "CASCADE" /* If a user is deleted, all its expenses are deleted as well */,
+            "CASCADE" /* If a user is deleted, all its revenues are deleted as well */,
     })
     user: User;
 }

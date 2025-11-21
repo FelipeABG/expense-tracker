@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { UserSchema } from "./user.schema";
 
-export const ExpenseSchema = z.object({
+export const RevenueSchema = z.object({
     id: z.number(),
     title: z.string(),
     description: z.string(),

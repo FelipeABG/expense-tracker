@@ -1,120 +1,113 @@
 import { User } from "src/user/user.entity";
 import { UserService } from "../user/user.service";
 import {
-    generateTestExpense,
+    generateTestRevenue,
     generateTestModule,
     generateTestUser,
     UserFormat,
 } from "../utils/test.util";
-import { ExpenseService } from "./expense.service";
+import { RevenueService } from "./revenue.service";
 import { NotFoundException } from "@nestjs/common";
 
-describe("Expense service", () => {
+describe("Revenue service", () => {
     let user: User;
-    const expense = generateTestExpense();
-    let expenseService: ExpenseService;
+    const revenue = generateTestRevenue();
+    let revenueService: RevenueService;
 
     beforeAll(async () => {
         const modRef = await generateTestModule();
-        expenseService = modRef.get(ExpenseService);
-
+        revenueService = modRef.get(RevenueService);
         const userService = modRef.get(UserService);
         user = await userService.create(generateTestUser(UserFormat.HASH));
     });
 
     describe("create", () => {
-        it("Should create a new expense in the db and return it", async () => {
-            const result = await expenseService.create({
+        it("Should create a new revenue in the db and return it", async () => {
+            const result = await revenueService.create({
                 user: { id: user.id },
-                ...expense,
+                ...revenue,
             });
-
-            expect(result.title).toBe(expense.title);
-            expect(result.description).toBe(expense.description);
+            expect(result.title).toBe(revenue.title);
+            expect(result.description).toBe(revenue.description);
         });
 
         it("Should fail if the user does not exist", async () => {
             await expect(
-                expenseService.create({ user: { id: 5 }, ...expense }),
+                revenueService.create({ user: { id: 5 }, ...revenue }),
             ).rejects.toThrow(NotFoundException);
         });
     });
 
     describe("find", () => {
-        it("Should retrieve all expenses based of find options", async () => {
-            const result = await expenseService.find({
+        it("Should retrieve all revenues based of find options", async () => {
+            const result = await revenueService.find({
                 where: { user: { id: user.id } },
             });
-
             expect(result.length).toBe(1);
         });
 
         it("Should return an empty list if nothing specified is found", async () => {
-            const result = await expenseService.find({
+            const result = await revenueService.find({
                 where: { user: { id: 4845 } },
             });
-
             expect(result.length).toBe(0);
         });
     });
 
     describe("delete", () => {
-        let createdExpenseId: number;
+        let createdRevenueId: number;
 
         beforeAll(async () => {
-            // Create an expense to delete
-            const created = await expenseService.create({
+            // Create a revenue to delete
+            const created = await revenueService.create({
                 user: { id: user.id },
-                ...expense,
+                ...revenue,
             });
-
-            createdExpenseId = created.id;
+            createdRevenueId = created.id;
         });
 
-        it("Should delete an existing expense", async () => {
-            const result = await expenseService.delete(createdExpenseId);
-
+        it("Should delete an existing revenue", async () => {
+            const result = await revenueService.delete(createdRevenueId);
             expect(result).toEqual({
-                message: "Expense deleted successfully",
+                message: "Revenue deleted successfully",
             });
 
             // Ensure it no longer exists
-            const found = await expenseService.find({
-                where: { id: createdExpenseId },
+            const found = await revenueService.find({
+                where: { id: createdRevenueId },
             });
-
             expect(found.length).toBe(0);
         });
 
-        it("Should throw NotFoundException if deleting a non-existing expense", async () => {
-            await expect(expenseService.delete(99999)).rejects.toThrow(
+        it("Should throw NotFoundException if deleting a non-existing revenue", async () => {
+            await expect(revenueService.delete(99999)).rejects.toThrow(
                 NotFoundException,
             );
         });
     });
 
     describe("update", () => {
-        let createdExpenseId: number;
-        const originalExpense = generateTestExpense();
+        let createdRevenueId: number;
+        const originalRevenue = generateTestRevenue();
 
         beforeEach(async () => {
-            // Create a fresh expense for each test
-            const created = await expenseService.create({
+            // Create a fresh revenue for each test
+            const created = await revenueService.create({
                 user: { id: user.id },
-                ...originalExpense,
+                ...originalRevenue,
             });
-            createdExpenseId = created.id;
+            createdRevenueId = created.id;
         });
 
         it("Should update a single field (title)", async () => {
             const newTitle = "Updated Title";
-            const result = await expenseService.update(createdExpenseId, {
+            const result = await revenueService.update(createdRevenueId, {
                 title: newTitle,
             });
 
             expect(result.title).toBe(newTitle);
-            expect(result.description).toBe(originalExpense.description);
-            expect(result.value).toBe(originalExpense.value);
+            expect(result.description).toBe(originalRevenue.description);
+            expect(result.value).toBe(originalRevenue.value);
         });
 
         it("Should update multiple fields at once", async () => {
@@ -124,8 +117,8 @@ describe("Expense service", () => {
                 value: 999.99,
             };
 
-            const result = await expenseService.update(
-                createdExpenseId,
+            const result = await revenueService.update(
+                createdRevenueId,
                 updates,
             );
 
@@ -136,7 +129,7 @@ describe("Expense service", () => {
 
         it("Should update date field", async () => {
             const newDate = "2024-12-31";
-            const result = await expenseService.update(createdExpenseId, {
+            const result = await revenueService.update(createdRevenueId, {
                 date: newDate,
             });
 
@@ -146,7 +139,7 @@ describe("Expense service", () => {
 
         it("Should update recurrence field", async () => {
             const newRecurrence = 30;
-            const result = await expenseService.update(createdExpenseId, {
+            const result = await revenueService.update(createdRevenueId, {
                 recurrence: newRecurrence,
             });
 
@@ -162,8 +155,8 @@ describe("Expense service", () => {
                 recurrence: 7,
             };
 
-            const result = await expenseService.update(
-                createdExpenseId,
+            const result = await revenueService.update(
+                createdRevenueId,
                 updates,
             );
 
@@ -175,26 +168,26 @@ describe("Expense service", () => {
         });
 
         it("Should not return user in the response", async () => {
-            const result = await expenseService.update(createdExpenseId, {
+            const result = await revenueService.update(createdRevenueId, {
                 title: "Test No User",
             });
 
             expect(result).not.toHaveProperty("user");
         });
 
-        it("Should throw NotFoundException when updating non-existing expense", async () => {
+        it("Should throw NotFoundException when updating non-existing revenue", async () => {
             await expect(
-                expenseService.update(99999, { title: "New Title" }),
+                revenueService.update(99999, { title: "New Title" }),
             ).rejects.toThrow(NotFoundException);
         });
 
         it("Should handle empty update object", async () => {
-            const result = await expenseService.update(createdExpenseId, {});
+            const result = await revenueService.update(createdRevenueId, {});
 
-            // Should return the expense unchanged
-            expect(result.title).toBe(originalExpense.title);
-            expect(result.description).toBe(originalExpense.description);
-            expect(result.value).toBe(originalExpense.value);
+            // Should return the revenue unchanged
+            expect(result.title).toBe(originalRevenue.title);
+            expect(result.description).toBe(originalRevenue.description);
+            expect(result.value).toBe(originalRevenue.value);
         });
     });
 });
