@@ -6,6 +6,7 @@ import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
 import { ExpenseModule } from "./expense/expense.module";
 import { RevenueModule } from "./revenue/revenue.module";
+import { FinancialGoalModule } from "./goal/goal.module";
 
 @Module({
     imports: [
@@ -39,6 +40,7 @@ import { RevenueModule } from "./revenue/revenue.module";
         AuthModule,
         ExpenseModule,
         RevenueModule,
+        FinancialGoalModule,
     ],
 })
 export class AppModule {}

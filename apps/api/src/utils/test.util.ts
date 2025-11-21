@@ -48,3 +48,9 @@ export const generateTestRevenue = () => ({
     value: 1000.0,
     recurrence: 30,
 });
+
+export const generateTestFinancialGoal = () => ({
+    description: `Save for vacation ${Date.now()}`,
+    value: 5000.0,
+    limitDate: "2025-12-31",
+});
