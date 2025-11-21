@@ -40,3 +40,11 @@ export function generateTestExpense() {
         recurrence: undefined,
     };
 }
+
+export const generateTestRevenue = () => ({
+    title: `Test Revenue ${Date.now()}`,
+    description: "Test revenue description",
+    date: "2024-01-01",
+    value: 1000.0,
+    recurrence: 30,
+});
