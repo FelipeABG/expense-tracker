@@ -28,7 +28,7 @@ import { FinancialGoalModule } from "./goal/goal.module";
                     };
                 }
                 return {
-                    type: "postgres",
+                    type: "mysql",
                     url: configService.get(
                         ENV === "prod" ? "DB_URL" : "DEV_DB_URL",
                     ),

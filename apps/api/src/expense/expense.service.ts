@@ -39,6 +39,13 @@ export class ExpenseService {
                     );
                 }
 
+                // MySQL foreign key violation
+                if (driverError.code === 1452) {
+                    throw new NotFoundException(
+                        "Specified user does not exist",
+                    );
+                }
+
                 // SQLite foreign key violation (test)
                 if (
                     driverError.message?.includes(
